@@ -212,7 +212,13 @@ if __name__ == '__main__':
  while True:
   time.sleep(0.5)
   temperature,pressure,altitude = bmp388.get_temperature_and_pressure_and_altitude()
-  print(' Temperature = %.1f Pressure = %.2f  Altitude =%.2f '%(temperature/100.0,pressure/100.0,altitude/100.0))
+
+  altitude = (altitude / 100) * 3.281
+  temperature = ((temperature / 100) * (9 / 5)) + 32
+  pressure = ((pressure / 100) / 3386) + (altitude / 1000)
+  altitude = altitude / 3.281
+  
+  print(' Temperature = %.1fF Pressure = %.2fmm HG  Altitude =%.2fm '%(temperature,pressure,altitude))
 
 
 

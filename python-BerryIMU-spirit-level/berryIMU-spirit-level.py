@@ -19,7 +19,9 @@
 #    Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
 #    MA 02111-1307, USA
 
-import smbus, pygame, os
+import smbus
+import pygame
+import os
 import time
 import math
 from LSM9DS0 import *
@@ -35,36 +37,36 @@ AA =  0.40      # Complementary filter constant
 
 
 def writeACC(register,value):
-        bus.write_byte_data(ACC_ADDRESS , register, value)
-        return -1
+	bus.write_byte_data(ACC_ADDRESS , register, value)
+	return -1
 
 
 
 def writeGRY(register,value):
-        bus.write_byte_data(GYR_ADDRESS, register, value)
-        return -1
+	bus.write_byte_data(GYR_ADDRESS, register, value)
+	return -1
 
 
 
 def readACCx():
-        acc_l = bus.read_byte_data(ACC_ADDRESS, OUT_X_L_A)
-        acc_h = bus.read_byte_data(ACC_ADDRESS, OUT_X_H_A)
+	acc_l = bus.read_byte_data(ACC_ADDRESS, OUT_X_L_A)
+	acc_h = bus.read_byte_data(ACC_ADDRESS, OUT_X_H_A)
 	acc_combined = (acc_l | acc_h <<8)
 
 	return acc_combined  if acc_combined < 32768 else acc_combined - 65536
 
 
 def readACCy():
-        acc_l = bus.read_byte_data(ACC_ADDRESS, OUT_Y_L_A)
-        acc_h = bus.read_byte_data(ACC_ADDRESS, OUT_Y_H_A)
+	acc_l = bus.read_byte_data(ACC_ADDRESS, OUT_Y_L_A)
+	acc_h = bus.read_byte_data(ACC_ADDRESS, OUT_Y_H_A)
 	acc_combined = (acc_l | acc_h <<8)
 
 	return acc_combined  if acc_combined < 32768 else acc_combined - 65536
 
 
 def readACCz():
-        acc_l = bus.read_byte_data(ACC_ADDRESS, OUT_Z_L_A)
-        acc_h = bus.read_byte_data(ACC_ADDRESS, OUT_Z_H_A)
+	acc_l = bus.read_byte_data(ACC_ADDRESS, OUT_Z_L_A)
+	acc_h = bus.read_byte_data(ACC_ADDRESS, OUT_Z_H_A)
 	acc_combined = (acc_l | acc_h <<8)
 
 	return acc_combined  if acc_combined < 32768 else acc_combined - 65536
@@ -72,26 +74,26 @@ def readACCz():
 
 
 def readGYRx():
-        gyr_l = bus.read_byte_data(GYR_ADDRESS, OUT_X_L_G)
-        gyr_h = bus.read_byte_data(GYR_ADDRESS, OUT_X_H_G)
-        gyr_combined = (gyr_l | gyr_h <<8)
+	gyr_l = bus.read_byte_data(GYR_ADDRESS, OUT_X_L_G)
+	gyr_h = bus.read_byte_data(GYR_ADDRESS, OUT_X_H_G)
+	gyr_combined = (gyr_l | gyr_h <<8)
 
-        return gyr_combined  if gyr_combined < 32768 else gyr_combined - 65536
+	return gyr_combined  if gyr_combined < 32768 else gyr_combined - 65536
   
 
 def readGYRy():
-        gyr_l = bus.read_byte_data(GYR_ADDRESS, OUT_Y_L_G)
-        gyr_h = bus.read_byte_data(GYR_ADDRESS, OUT_Y_H_G)
-        gyr_combined = (gyr_l | gyr_h <<8)
+	gyr_l = bus.read_byte_data(GYR_ADDRESS, OUT_Y_L_G)
+	gyr_h = bus.read_byte_data(GYR_ADDRESS, OUT_Y_H_G)
+	gyr_combined = (gyr_l | gyr_h <<8)
 
-        return gyr_combined  if gyr_combined < 32768 else gyr_combined - 65536
+	return gyr_combined  if gyr_combined < 32768 else gyr_combined - 65536
 
 def readGYRz():
-        gyr_l = bus.read_byte_data(GYR_ADDRESS, OUT_Z_L_G)
-        gyr_h = bus.read_byte_data(GYR_ADDRESS, OUT_Z_H_G)
-        gyr_combined = (gyr_l | gyr_h <<8)
+	gyr_l = bus.read_byte_data(GYR_ADDRESS, OUT_Z_L_G)
+	gyr_h = bus.read_byte_data(GYR_ADDRESS, OUT_Z_H_G)
+	gyr_combined = (gyr_l | gyr_h <<8)
 
-        return gyr_combined  if gyr_combined < 32768 else gyr_combined - 65536
+	return gyr_combined  if gyr_combined < 32768 else gyr_combined - 65536
 
 
 
@@ -167,7 +169,7 @@ def scaleV(value):
 	minScale = vSlideLimit[0]
 	maxScale = vSlideLimit[1]
 	scaled = minScale + (value - min)/(max-min) * (maxScale - minScale)
-	
+
 	return scaled
 
 
@@ -201,8 +203,8 @@ def scaleHonly(value):
 #Where circle_x and circle_y is the center coordinates of the circle, r is the radius of the circle.
 #http://stackoverflow.com/questions/481144/equation-for-testing-if-a-point-is-inside-a-circle
 def is_in_circle(circle_x, circle_y, r, x, y):
-    d = math.sqrt((x - circle_x) ** 2 + (y - circle_y) ** 2)
-    return d <= r
+	d = math.sqrt((x - circle_x) ** 2 + (y - circle_y) ** 2)
+	return d <= r
 
 
 #used for low pass filter
@@ -227,21 +229,21 @@ while True:
 	b = datetime.datetime.now() - a
 	a = datetime.datetime.now()
 	LP = b.microseconds/(1000000*1.0)
-	print "Loop Time | %5.2f|" % ( LP ),
+	print ("Loop Time | %5.2f|" % ( LP ))
 	
 	
 	
 	
 	#Apply low pass filter to reduce noise
 	ACC_LPF_FACTOR = 0.05
-	ACCx =  ACCx  * ACC_LPF_FACTOR + oldXAccRawValue*(1 - ACC_LPF_FACTOR);
-	ACCy =  ACCy  * ACC_LPF_FACTOR + oldYAccRawValue*(1 - ACC_LPF_FACTOR);
-	ACCz =  ACCz  * ACC_LPF_FACTOR + oldZAccRawValue*(1 - ACC_LPF_FACTOR);
-	oldXAccRawValue = ACCx;
-	oldYAccRawValue = ACCy;
-	oldZAccRawValue = ACCz;
-	
-	
+	ACCx =  ACCx  * ACC_LPF_FACTOR + oldXAccRawValue*(1 - ACC_LPF_FACTOR)
+	ACCy =  ACCy  * ACC_LPF_FACTOR + oldYAccRawValue*(1 - ACC_LPF_FACTOR)
+	ACCz =  ACCz  * ACC_LPF_FACTOR + oldZAccRawValue*(1 - ACC_LPF_FACTOR)
+	oldXAccRawValue = ACCx
+	oldYAccRawValue = ACCy
+	oldZAccRawValue = ACCz
+
+
 	#Convert Gyro raw to degrees per second
 	rate_gyr_x =  GYRx * G_GAIN
 	rate_gyr_y =  GYRy * G_GAIN
@@ -278,13 +280,13 @@ while True:
 	#
 	#If IMU is upside down E.g Skull logo is facing up;
 	if AccXangle >180:
-	        AccXangle -= 360.0
-	AccYangle-=90
+		AccXangle -= 360.0
+		AccYangle -= 90
 	if (AccYangle >180):
-	        AccYangle -= 360.0
+		AccYangle -= 360.0
 	############################ END ##################################
 	if AccZangle >180:
-	        AccZangle -= 360.0
+			AccZangle -= 360.0
 
 	        
 	#Complementary filter used to combine the accelerometer and gyro values.
@@ -294,12 +296,12 @@ while True:
 
 
 	if 0:			#Change to '0' to stop showing the angles from the accelerometer
- 		print ("\033[1;34;40mACCX Angle %5.2f ACCY Angle %5.2f  ACCZ Angle %5.2f  \033[0m  " % (AccXangle, AccYangle, AccZangle)),
-	
+		print ("\033[1;34;40mACCX Angle %5.2f ACCY Angle %5.2f  ACCZ Angle %5.2f  \033[0m  " % (AccXangle, AccYangle, AccZangle)),
+
 	if 0:			#Change to '0' to stop  showing the angles from the gyro
 		print ("\033[1;31;40m\tGRYX Angle %5.2f  GYRY Angle %5.2f  GYRZ Angle %5.2f" % (gyroXangle,gyroYangle,gyroZangle)),
 
- 	if 1:			#Change to '0' to stop  showing the angles from the complementary filter
+	if 1:			#Change to '0' to stop  showing the angles from the complementary filter
 		print ("\033[1;35;40m   \tCFangleX Angle %5.2f \033[1;36;40m  CFangleY Angle %5.2f  \033[1;33;40m  CFangleZ Angle %5.2f\33[1;32;40m" % (CFangleX,CFangleY,CFangleZ))
 
 

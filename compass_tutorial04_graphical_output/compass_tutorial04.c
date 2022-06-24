@@ -32,12 +32,12 @@
 // Calibrating the compass isnt mandatory, however a calibrated 
 // compass will result in a more accurate heading values.
 
-#define magXmin 0.0
-#define magYmin 0.0
-#define magZmin 0.0
-#define magXmax 0.0
-#define magYmax 0.0
-#define magZmax 0.0
+#define magXmin -999
+#define magYmin -1829
+#define magZmin -4408
+#define magXmax 2145
+#define magYmax 847
+#define magZmax 913
 
 /*Here is an example:
 #define magXmin -1437
@@ -158,10 +158,18 @@ int main(int argc, char *argv[])
 
 
         //Calculate the new tilt compensated values
-		magXcomp = magRaw[0]*cos(pitch)+magRaw[2]*sin(pitch);
-		if(LSM9DS0)
+		//The compass and accelerometer are orientated differently on the the BerryIMUv1, v2 and v3.
+		//needs to be taken into consideration when performing the calculations
+		//X compensation
+		if(BerryIMUversion == 1 || BerryIMUversion == 3)
+			magXcomp = magRaw[0]*cos(pitch)+magRaw[2]*sin(pitch);
+		else if (BerryIMUversion == 2)
+			magXcomp = magRaw[0]*cos(pitch)-magRaw[2]*sin(pitch);
+
+		//Y compensation
+		if(BerryIMUversion == 1 || BerryIMUversion == 3)
 			magYcomp = magRaw[0]*sin(roll)*sin(pitch)+magRaw[1]*cos(roll)-magRaw[2]*sin(roll)*cos(pitch); // LSM9DS0
-		else
+		else if (BerryIMUversion == 2)
 			magYcomp = magRaw[0]*sin(roll)*sin(pitch)+magRaw[1]*cos(roll)+magRaw[2]*sin(roll)*cos(pitch); // LSM9DS1
 
 		//Calculate heading
